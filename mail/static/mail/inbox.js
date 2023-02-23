@@ -35,6 +35,7 @@ function view_email(id) {
     document.querySelector('#emails-view').style.display = 'none';
     document.querySelector('#compose-view').style.display = 'none';
     document.querySelector('#email-detail-view').style.display = 'block';
+
     document.querySelector('#email-detail-view').innerHTML = `
     <ul class="list-group">
       <li class="list-group-item"><strong>From:</strong> ${email.sender}</li>
@@ -44,6 +45,31 @@ function view_email(id) {
       <li class="list-group-item">${email.body}</li>
     </ul>
     `;
+
+    if(!email.read) {
+      fetch(`/emails/${email.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+            read: true
+        })
+      })
+    }
+
+    const btn_arch = document.createElement('button');
+    btn_arch.innerHTML = email.archived ? "Unarchive" : "Archive"
+    btn_arch.className = email.archived ? "btn btn-success" : "btn btn-danger"
+    btn_arch.addEventListener('click', function() {
+      fetch(`/emails/${email.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+            archived: !email.archived
+        })
+      })
+
+      .then(() => { load_mailbox('inbox')})
+    });
+    document.querySelector('#email-detail-view').append(btn_arch);
+    
   });
 }
 
@@ -52,7 +78,7 @@ function load_mailbox(mailbox) {
   // Show the mailbox and hide other views
   document.querySelector('#emails-view').style.display = 'block';
   document.querySelector('#compose-view').style.display = 'none';
-  document.querySelector('#email-detail-view').style.display = 'block';
+  document.querySelector('#email-detail-view').style.display = 'none';
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
