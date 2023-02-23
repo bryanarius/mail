@@ -32,6 +32,28 @@ function load_mailbox(mailbox) {
 
   // Show the mailbox name
   document.querySelector('#emails-view').innerHTML = `<h3>${mailbox.charAt(0).toUpperCase() + mailbox.slice(1)}</h3>`;
+
+  fetch(`/emails/${mailbox}`)
+  .then(response => response.json())
+  .then(emails => {
+    emails.forEach(singleEmail => {
+      
+      const newEmail = document.createElement('div');
+      newEmail.className = "list-group-item";
+      newEmail.innerHTML = `
+      <h6>Sender: ${singleEmail.sender}</h6>
+      <h5>Subject: ${singleEmail.subject}</h5>
+      <p>${singleEmail.timestamp}</p>
+      `;
+
+      newEmail.className = singleEmail.read ? 'read' : 'unread'
+      newEmail.addEventListener('click', function() {
+      console.log('This newEmail has been clicked!')
+});
+document.querySelector('#emails-view').append(newEmail);
+    })
+});
+
 }
 
 function send_email(event) {
